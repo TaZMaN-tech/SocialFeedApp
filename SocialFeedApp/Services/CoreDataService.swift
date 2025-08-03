@@ -14,7 +14,7 @@ class CoreDataService {
 
     private init() {}
 
-    // MARK: - Контекст Core Data
+    // MARK: - Core Data Context
     lazy var context: NSManagedObjectContext = {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             fatalError("Не удалось получить AppDelegate")
@@ -22,7 +22,7 @@ class CoreDataService {
         return appDelegate.persistentContainer.viewContext
     }()
 
-    // MARK: - Сохранение постов
+    // MARK: - Saving Posts
     func savePosts(_ posts: [Post]) {
         clearPosts()
 
@@ -42,7 +42,7 @@ class CoreDataService {
         }
     }
 
-    // MARK: - Получение постов
+    // MARK: - Fetching Posts
     func fetchPosts() -> [Post] {
         let request = NSFetchRequest<PostEntity>(entityName: "PostEntity")
 
@@ -63,7 +63,7 @@ class CoreDataService {
         }
     }
 
-    // MARK: - Очистка всех постов
+    // MARK: - Clearing All Posts
     func clearPosts() {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "PostEntity")
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
@@ -76,7 +76,7 @@ class CoreDataService {
         }
     }
 
-    // MARK: - Сохранение лайка
+    // MARK: - Saving Like Status
     func setLike(postID: Int, isLiked: Bool) {
         let request = NSFetchRequest<PostEntity>(entityName: "PostEntity")
         request.predicate = NSPredicate(format: "id == %d", postID)

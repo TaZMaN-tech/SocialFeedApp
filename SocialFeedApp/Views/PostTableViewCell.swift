@@ -33,35 +33,38 @@ class PostTableViewCell: UITableViewCell {
 
     private func setupUI() {
         selectionStyle = .none
-
+        
         // Avatar
         avatarImageView.layer.cornerRadius = 20
         avatarImageView.clipsToBounds = true
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         avatarImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
         avatarImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-
+        avatarImageView.setContentHuggingPriority(.required, for: .horizontal)
+        
         // Text
         titleLabel.font = .boldSystemFont(ofSize: 16)
         bodyLabel.font = .systemFont(ofSize: 14)
         bodyLabel.numberOfLines = 0
-
+        
         let textStack = UIStackView(arrangedSubviews: [titleLabel, bodyLabel])
         textStack.axis = .vertical
         textStack.spacing = 4
-
+        
         // Like
         likeButton.setTitle("🤍", for: .normal)
-        likeButton.titleLabel?.font = .systemFont(ofSize: 20)
+        likeButton.titleLabel?.font = UIFont.systemFont(ofSize: 22)
+        likeButton.translatesAutoresizingMaskIntoConstraints = false
+        likeButton.setContentHuggingPriority(.required, for: .horizontal)
+        likeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         likeButton.addTarget(self, action: #selector(likeTapped), for: .touchUpInside)
-
+        
         // Main horizontal stack
         let mainStack = UIStackView(arrangedSubviews: [avatarImageView, textStack, likeButton])
         mainStack.axis = .horizontal
         mainStack.spacing = 12
         mainStack.alignment = .top
-        mainStack.distribution = .fill
-
+        
         contentView.addSubview(mainStack)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -70,10 +73,6 @@ class PostTableViewCell: UITableViewCell {
             mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         ])
-
-        // Prevent stretching
-        likeButton.setContentHuggingPriority(.required, for: .horizontal)
-        avatarImageView.setContentHuggingPriority(.required, for: .horizontal)
     }
 
     // MARK: - Configuration

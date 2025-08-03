@@ -14,9 +14,9 @@ class APIService {
 
     private let baseURL = "https://jsonplaceholder.typicode.com"
 
-    // MARK: - Загрузка постов
-    func fetchPosts(completion: @escaping (Result<[Post], Error>) -> Void) {
-        let url = "\(baseURL)/posts"
+    // MARK: - Fetching Posts
+    func fetchPosts(start: Int = 0, limit: Int = 20, completion: @escaping (Result<[Post], Error>) -> Void) {
+        let url = "\(baseURL)/posts?_start=\(start)&_limit=\(limit)"
 
         AF.request(url).responseDecodable(of: [Post].self) { response in
             switch response.result {
@@ -28,7 +28,7 @@ class APIService {
         }
     }
 
-    // MARK: - Загрузка пользователей
+    // MARK: - Fetching Users
     func fetchUsers(completion: @escaping (Result<[User], Error>) -> Void) {
         let url = "\(baseURL)/users"
 
