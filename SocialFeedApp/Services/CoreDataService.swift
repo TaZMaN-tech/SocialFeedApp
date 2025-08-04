@@ -9,7 +9,8 @@ import Foundation
 import CoreData
 import UIKit
 
-class CoreDataService {
+final class CoreDataService {
+    
     static let shared = CoreDataService()
 
     private init() {}

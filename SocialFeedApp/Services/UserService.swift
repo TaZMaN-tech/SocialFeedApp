@@ -7,7 +7,7 @@
 
 import Foundation
 
-class UserService {
+final class UserService {
     static let shared = UserService()
 
     private var users: [Int: User] = [:]

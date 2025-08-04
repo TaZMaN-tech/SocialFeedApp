@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FeedViewController: UIViewController {
+final class FeedViewController: UIViewController {
     
     // MARK: - UI Components
     private let tableView = UITableView()
@@ -16,10 +16,9 @@ class FeedViewController: UIViewController {
     
     private let errorLabel: UILabel = {
         let label = UILabel()
-        label.text = ""
         label.textColor = .systemRed
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.font = .systemFont(ofSize: 14, weight: .medium)
         label.alpha = 0
         return label
     }()
@@ -35,30 +34,30 @@ class FeedViewController: UIViewController {
     
     // MARK: - Setup Methods
     private func setupTableView() {
-        view.addSubview(tableView)
+        [tableView, errorLabel].forEach { view.addSubview($0) }
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        errorLabel.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.leftAnchor.constraint(equalTo: view.leftAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableView.rightAnchor.constraint(equalTo: view.rightAnchor)
-        ])
-        
-        tableView.register(PostTableViewCell.self, forCellReuseIdentifier: "PostCell")
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.refreshControl = UIRefreshControl()
-        tableView.refreshControl?.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
-        
-        footerActivityIndicator.hidesWhenStopped = true
-        tableView.tableFooterView = footerActivityIndicator
-        
-        view.addSubview(errorLabel)
-        errorLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
+            tableView.rightAnchor.constraint(equalTo: view.rightAnchor),
+
             errorLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
             errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
+
+        tableView.register(PostTableViewCell.self, forCellReuseIdentifier: "PostCell")
+        tableView.dataSource = self
+        tableView.delegate = self
+
+        let refresh = UIRefreshControl()
+        refresh.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
+        tableView.refreshControl = refresh
+
+        footerActivityIndicator.hidesWhenStopped = true
+        tableView.tableFooterView = footerActivityIndicator
     }
     
     // MARK: - Bindings
@@ -67,15 +66,14 @@ class FeedViewController: UIViewController {
             self?.tableView.refreshControl?.endRefreshing()
             self?.tableView.reloadData()
         }
+
         viewModel.onLoadingChanged = { [weak self] isLoading in
             isLoading
-            ? self?.footerActivityIndicator.startAnimating()
-            : self?.footerActivityIndicator.stopAnimating()
+                ? self?.footerActivityIndicator.startAnimating()
+                : self?.footerActivityIndicator.stopAnimating()
         }
-        
-        viewModel.onError = { [weak self] message in
-            self?.showError(message)
-        }
+
+        viewModel.onError = { [weak self] in self?.showError($0) }
     }
     
     // MARK: - Error Handling
@@ -101,15 +99,14 @@ class FeedViewController: UIViewController {
 // MARK: - UITableViewDataSource
 extension FeedViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfPosts()
+        return viewModel.numberOfPosts
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostTableViewCell else {
             return UITableViewCell()
         }
-        let post = viewModel.post(at: indexPath.row)
-        cell.configure(with: post) { [weak self] in
+        cell.configure(with: viewModel.post(at: indexPath.row)) { [weak self] in
             self?.viewModel.toggleLike(for: indexPath.row)
         }
         return cell
@@ -120,10 +117,8 @@ extension FeedViewController: UITableViewDataSource {
 extension FeedViewController: UITableViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        
-        if offsetY > contentHeight - scrollView.frame.size.height * 1.5 {
-            viewModel.fetchMorePosts()
-        }
+        let threshold = scrollView.contentSize.height - scrollView.frame.size.height * 1.5
+        guard offsetY > threshold else { return }
+        viewModel.fetchMorePosts()
     }
 }
